@@ -1,0 +1,23 @@
+{
+  "images" : [
+    {
+      "filename" : "minimalist-mobile-splash-screen-design-v_b65HE5AeQ7y39ROk_gD_LQ_sIlyssQVRbCwc5D-qc_BcQ.png",
+      "idiom" : "universal",
+      "scale" : "1x"
+    },
+    {
+      "filename" : "minimalist-mobile-splash-screen-design-v_b65HE5AeQ7y39ROk_gD_LQ_sIlyssQVRbCwc5D-qc_BcQ@2x.png",
+      "idiom" : "universal",
+      "scale" : "2x"
+    },
+    {
+      "filename" : "minimalist-mobile-splash-screen-design-v_b65HE5AeQ7y39ROk_gD_LQ_sIlyssQVRbCwc5D-qc_BcQ@3x.png",
+      "idiom" : "universal",
+      "scale" : "3x"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}
