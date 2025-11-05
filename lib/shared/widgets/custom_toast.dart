@@ -19,7 +19,11 @@ class CustomToast {
         message: message,
         icon: icon,
         isSuccess: isSuccess,
-        onDismiss: () => overlayEntry.remove(),
+        onDismiss: () {
+          if (overlayEntry.mounted) {
+            overlayEntry.remove();
+          }
+        },
       ),
     );
 
@@ -81,7 +85,11 @@ class _ToastWidgetState extends State<_ToastWidget>
     // Start dismiss animation before callback
     Future.delayed(const Duration(milliseconds: 2600), () {
       if (mounted) {
-        _controller.reverse().then((_) => widget.onDismiss());
+        _controller.reverse().then((_) {
+          if (mounted) {
+            widget.onDismiss();
+          }
+        });
       }
     });
   }
@@ -192,7 +200,13 @@ class _ToastWidgetState extends State<_ToastWidget>
                             size: 18,
                           ),
                           onPressed: () {
-                            _controller.reverse().then((_) => widget.onDismiss());
+                            if (mounted) {
+                              _controller.reverse().then((_) {
+                                if (mounted) {
+                                  widget.onDismiss();
+                                }
+                              });
+                            }
                           },
                           padding: EdgeInsets.zero,
                           constraints: const BoxConstraints(),

@@ -732,9 +732,390 @@ class _PremiumSessionsScreenState extends State<PremiumSessionsScreen> {
   }
 
   void _showSessionDetail(Session session) {
-    // TODO: Show session detail screen
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Session detail for ${session.game} - Coming soon!')),
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.7,
+        minChildSize: 0.5,
+        maxChildSize: 0.95,
+        builder: (context, scrollController) => Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                PremiumTheme.deepNavyCenter,
+                PremiumTheme.deepNavyBottom,
+              ],
+            ),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: Column(
+            children: [
+              // Drag handle
+              Container(
+                margin: const EdgeInsets.only(top: 12),
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: PremiumTheme.textQuaternary,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              Expanded(
+                child: ListView(
+                  controller: scrollController,
+                  padding: const EdgeInsets.all(24),
+                  children: [
+                    _buildDetailHeader(session),
+                    const SizedBox(height: 24),
+                    _buildDetailStats(session),
+                    const SizedBox(height: 24),
+                    if (session.notes != null && session.notes!.isNotEmpty)
+                      _buildDetailNotes(session),
+                    const SizedBox(height: 24),
+                    _buildDetailActions(session),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDetailHeader(Session session) {
+    final currencySymbol = context.read<AppState>().preferences.currencySymbol;
+    final isWin = session.netProfit > 0;
+    
+    return Column(
+      children: [
+        Container(
+          width: 80,
+          height: 80,
+          decoration: BoxDecoration(
+            gradient: _getGameGradient(session.game),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Image.asset(
+              AppAssets.getGameIcon(session.game),
+              fit: BoxFit.contain,
+              color: Colors.white,
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+        Text(
+          session.game,
+          style: const TextStyle(
+            fontSize: 28,
+            fontWeight: FontWeight.w600,
+            color: PremiumTheme.textPrimary,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          session.location,
+          style: const TextStyle(
+            fontSize: 16,
+            color: PremiumTheme.textSecondary,
+          ),
+        ),
+        const SizedBox(height: 16),
+        Text(
+          '${isWin ? '+' : ''}$currencySymbol${session.netProfit.abs().toStringAsFixed(2)}',
+          style: TextStyle(
+            fontSize: 48,
+            fontWeight: FontWeight.w700,
+            color: isWin ? PremiumTheme.successGreen : PremiumTheme.lossRed,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDetailStats(Session session) {
+    final duration = session.endTime != null 
+        ? session.endTime!.difference(session.startTime)
+        : Duration.zero;
+    final hours = duration.inHours;
+    final minutes = duration.inMinutes % 60;
+    final currencySymbol = context.read<AppState>().preferences.currencySymbol;
+    
+    return Container(
+      decoration: PremiumTheme.glassActionButton,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: [
+                _buildStatRow('Buy-in', '$currencySymbol${session.buyIn.toStringAsFixed(2)}'),
+                const Divider(color: PremiumTheme.textQuaternary, height: 24),
+                _buildStatRow('Cash Out', '$currencySymbol${session.cashOut.toStringAsFixed(2)}'),
+                const Divider(color: PremiumTheme.textQuaternary, height: 24),
+                _buildStatRow('Duration', '${hours}h ${minutes}m'),
+                const Divider(color: PremiumTheme.textQuaternary, height: 24),
+                _buildStatRow('Date', DateFormat('MMM d, y • h:mm a').format(session.startTime)),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStatRow(String label, String value) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 16,
+            color: PremiumTheme.textSecondary,
+          ),
+        ),
+        Text(
+          value,
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: PremiumTheme.textPrimary,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDetailNotes(Session session) {
+    return Container(
+      decoration: PremiumTheme.glassActionButton,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Row(
+                  children: [
+                    Icon(
+                      Icons.note_outlined,
+                      color: PremiumTheme.textSecondary,
+                      size: 20,
+                    ),
+                    SizedBox(width: 8),
+                    Text(
+                      'Notes',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: PremiumTheme.textPrimary,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  session.notes!,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    color: PremiumTheme.textSecondary,
+                    height: 1.5,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDetailActions(Session session) {
+    return Row(
+      children: [
+        Expanded(
+          child: GestureDetector(
+            onTap: () {
+              Navigator.pop(context);
+              // TODO: Implement edit session
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              decoration: PremiumTheme.glassActionButton,
+              child: const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.edit_outlined, color: PremiumTheme.primaryBlue, size: 20),
+                  SizedBox(width: 8),
+                  Text(
+                    'Edit',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: PremiumTheme.primaryBlue,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: GestureDetector(
+            onTap: () {
+              Navigator.pop(context);
+              _confirmDelete(session);
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              decoration: BoxDecoration(
+                color: PremiumTheme.lossRed.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: PremiumTheme.lossRed.withOpacity(0.3),
+                  width: 1,
+                ),
+              ),
+              child: const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.delete_outline, color: PremiumTheme.lossRed, size: 20),
+                  SizedBox(width: 8),
+                  Text(
+                    'Delete',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: PremiumTheme.lossRed,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _confirmDelete(Session session) {
+    showDialog(
+      context: context,
+      barrierColor: Colors.black54,
+      builder: (context) => Center(
+        child: Container(
+          margin: const EdgeInsets.symmetric(horizontal: 24),
+          constraints: const BoxConstraints(maxWidth: 400),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(24),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: PremiumTheme.deepNavyCenter.withOpacity(0.95),
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(
+                    color: Colors.white.withOpacity(0.1),
+                    width: 1,
+                  ),
+                ),
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(
+                      Icons.warning_amber_rounded,
+                      color: PremiumTheme.lossRed,
+                      size: 48,
+                    ),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Delete Session?',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                        color: PremiumTheme.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      'This action cannot be undone.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: PremiumTheme.textSecondary,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () => Navigator.pop(context),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              decoration: PremiumTheme.glassActionButton,
+                              child: const Center(
+                                child: Text(
+                                  'Cancel',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    color: PremiumTheme.textPrimary,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () {
+                              context.read<AppState>().deleteSession(session.id);
+                              Navigator.pop(context);
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              decoration: BoxDecoration(
+                                color: PremiumTheme.lossRed,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: const Center(
+                                child: Text(
+                                  'Delete',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 
