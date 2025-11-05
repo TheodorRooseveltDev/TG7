@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'core/theme/premium_theme.dart';
+import 'core/widgets/keyboard_dismisser.dart';
 import 'features/main/main_screen.dart';
 import 'features/onboarding/premium_onboarding_screen.dart';
 import 'features/splash/splash_screen.dart';
@@ -39,16 +40,18 @@ class CasinoCompanionApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider.value(
       value: appState,
-      child: MaterialApp(
-        title: 'Casino Companion',
-        debugShowCheckedModeBanner: false,
-        theme: PremiumTheme.themeData,
-        initialRoute: '/',
-        routes: {
-          '/': (context) => const SplashScreen(),
-          '/onboarding': (context) => const OnboardingScreen(),
-          '/main': (context) => const MainScreen(),
-        },
+      child: KeyboardDismisser(
+        child: MaterialApp(
+          title: 'Casino Companion',
+          debugShowCheckedModeBanner: false,
+          theme: PremiumTheme.themeData,
+          initialRoute: '/',
+          routes: {
+            '/': (context) => const SplashScreen(),
+            '/onboarding': (context) => const OnboardingScreen(),
+            '/main': (context) => const MainScreen(),
+          },
+        ),
       ),
     );
   }

@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../../core/theme/premium_theme.dart';
+import '../../core/utils/responsive_utils.dart';
 import '../../shared/widgets/space_background.dart';
 import '../../shared/widgets/add_session_modal.dart';
 import '../../providers/app_state.dart';
@@ -19,45 +20,51 @@ class PremiumHomeScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        forceMaterialTransparency: true, // This removes the blur effect
+        forceMaterialTransparency: true,
         title: const Text(''),
         actions: [
           IconButton(
-            icon: const Icon(Icons.notifications_none_rounded),
+            icon: Icon(
+              Icons.notifications_none_rounded,
+              size: ResponsiveUtils.iconSize(context, 24),
+            ),
             onPressed: () {},
           ),
-          const SizedBox(width: 8),
+          SizedBox(width: ResponsiveUtils.spacing(context, 8)),
         ],
       ),
       body: SpaceBackground(
         child: Consumer<AppState>(
           builder: (context, state, _) {
-            return SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.only(
-                  bottom: 110, // Space for floating tab bar
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Main Balance Card
-                    _buildBalanceSection(context, state),
+            return ResponsiveUtils.constrainWidth(
+              context,
+              SingleChildScrollView(
+                child: Padding(
+                  padding: EdgeInsets.only(
+                    bottom: ResponsiveUtils.spacing(context, 90), // Reduced space for tab bar
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Main Balance Card
+                      _buildBalanceSection(context, state),
 
-                    const SizedBox(height: 32),
+                      SizedBox(height: ResponsiveUtils.spacing(context, 24)),
 
-                    // Action Buttons
-                    _buildActionButtons(context),
+                      // Action Buttons
+                      _buildActionButtons(context),
 
-                    const SizedBox(height: 32),
+                      SizedBox(height: ResponsiveUtils.spacing(context, 24)),
 
-                    // Stats Grid
-                    _buildStatsGrid(context, state),
+                      // Stats Grid
+                      _buildStatsGrid(context, state),
 
-                    const SizedBox(height: 32),
+                      SizedBox(height: ResponsiveUtils.spacing(context, 24)),
 
-                    // Recent Sessions
-                    _buildRecentSessions(context, state),
-                  ],
+                      // Recent Sessions
+                      _buildRecentSessions(context, state),
+                    ],
+                  ),
                 ),
               ),
             );
@@ -68,37 +75,38 @@ class PremiumHomeScreen extends StatelessWidget {
   }
 
   /// EXACT Main Balance Display with GRADIENT TEXT
-  /// 56px ultra-thin (weight 200), gradient #FFFFFF to #B8C5E0
+  /// Scaled down for responsiveness
   Widget _buildBalanceSection(BuildContext context, AppState state) {
     final totalProfit = state.totalNetProfit;
     final isProfit = totalProfit >= 0;
     final percentage = state.sessions.isEmpty
         ? 0.0
         : (totalProfit / state.initialBankroll * 100);
+    final isTablet = ResponsiveUtils.isTablet(context);
 
     return Padding(
-      padding: const EdgeInsets.only(
-        top: 80, // Back to 80px with extendBodyBehindAppBar
-        left: PremiumTheme.screenHorizontalPadding,
-        right: PremiumTheme.screenHorizontalPadding,
+      padding: EdgeInsets.only(
+        top: isTablet ? 100 : 80,
+        left: ResponsiveUtils.screenHorizontalPadding(context),
+        right: ResponsiveUtils.screenHorizontalPadding(context),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Label - EXACT specs
+          // Label
           Text(
             'Current balance',
-            style: const TextStyle(
-              fontSize: 14,
+            style: TextStyle(
+              fontSize: ResponsiveUtils.fontSize(context, 13),
               fontWeight: FontWeight.w400,
               color: PremiumTheme.textMuted,
               letterSpacing: 0.3,
             ),
           ),
 
-          const SizedBox(height: 8),
+          SizedBox(height: ResponsiveUtils.spacing(context, 6)),
 
-          // Balance Amount with GRADIENT TEXT (EXACT)
+          // Balance Amount with GRADIENT TEXT - scaled down
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -108,9 +116,9 @@ class PremiumHomeScreen extends StatelessWidget {
                 child: Text(
                   '\$${NumberFormat('#,##0').format(state.currentBankroll.toInt())}',
                   style: TextStyle(
-                    fontSize: 56, // EXACT: 56px
-                    fontWeight: FontWeight.w200, // EXACT: Ultra thin
-                    letterSpacing: -1.5, // EXACT: -1.5px
+                    fontSize: ResponsiveUtils.fontSize(context, isTablet ? 48 : 42),
+                    fontWeight: FontWeight.w200,
+                    letterSpacing: -1.2,
                     color: Colors.white,
                     shadows: PremiumTheme.balanceTextShadow,
                   ),
@@ -122,7 +130,7 @@ class PremiumHomeScreen extends StatelessWidget {
                 child: Text(
                   '.${(state.currentBankroll % 1 * 100).toInt().toString().padLeft(2, '0')}',
                   style: TextStyle(
-                    fontSize: 32, // EXACT: 57% of main size
+                    fontSize: ResponsiveUtils.fontSize(context, isTablet ? 26 : 24),
                     fontWeight: FontWeight.w200,
                     color: Colors.white.withOpacity(0.6),
                   ),
@@ -131,12 +139,15 @@ class PremiumHomeScreen extends StatelessWidget {
             ],
           ),
 
-          const SizedBox(height: 12),
+          SizedBox(height: ResponsiveUtils.spacing(context, 10)),
 
-          // Percentage Badge - EXACT glass pill
+          // Percentage Badge
           if (state.sessions.isNotEmpty)
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              padding: EdgeInsets.symmetric(
+                horizontal: ResponsiveUtils.padding(context, 10),
+                vertical: ResponsiveUtils.padding(context, 5),
+              ),
               decoration: isProfit
                   ? PremiumTheme.profitBadgeDecoration
                   : PremiumTheme.lossBadgeDecoration,
@@ -145,16 +156,16 @@ class PremiumHomeScreen extends StatelessWidget {
                 children: [
                   Icon(
                     isProfit ? Icons.arrow_upward : Icons.arrow_downward,
-                    size: 10,
+                    size: ResponsiveUtils.iconSize(context, 10),
                     color: isProfit
                         ? PremiumTheme.successGreen
                         : PremiumTheme.lossRed,
                   ),
-                  const SizedBox(width: 4),
+                  SizedBox(width: ResponsiveUtils.spacing(context, 4)),
                   Text(
                     '${percentage.abs().toStringAsFixed(2)}%',
                     style: TextStyle(
-                      fontSize: 13,
+                      fontSize: ResponsiveUtils.fontSize(context, 12),
                       fontWeight: FontWeight.w500,
                       color: isProfit
                           ? PremiumTheme.successGreen
@@ -172,13 +183,14 @@ class PremiumHomeScreen extends StatelessWidget {
   /// Action Buttons Row (Add Session, View Stats, etc.)
   Widget _buildActionButtons(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: PremiumTheme.screenHorizontalPadding,
+      padding: EdgeInsets.symmetric(
+        horizontal: ResponsiveUtils.screenHorizontalPadding(context),
       ),
       child: Row(
         children: [
           Expanded(
             child: _buildActionButton(
+              context: context,
               icon: Icons.add_rounded,
               label: 'Add Session',
               onTap: () {
@@ -186,9 +198,10 @@ class PremiumHomeScreen extends StatelessWidget {
               },
             ),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: ResponsiveUtils.spacing(context, 10)),
           Expanded(
             child: _buildActionButton(
+              context: context,
               icon: Icons.assessment_rounded,
               label: 'Statistics',
               onTap: () {
@@ -196,9 +209,10 @@ class PremiumHomeScreen extends StatelessWidget {
               },
             ),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: ResponsiveUtils.spacing(context, 10)),
           Expanded(
             child: _buildActionButton(
+              context: context,
               icon: Icons.history_rounded,
               label: 'History',
               onTap: () {
@@ -211,8 +225,9 @@ class PremiumHomeScreen extends StatelessWidget {
     );
   }
 
-  /// EXACT Glass Action Buttons (48px height, multi-layer glass)
+  /// Glass Action Buttons - scaled down
   Widget _buildActionButton({
+    required BuildContext context,
     required IconData icon,
     required String label,
     required VoidCallback onTap,
@@ -222,28 +237,30 @@ class PremiumHomeScreen extends StatelessWidget {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeOut,
-        height: 48,
+        height: ResponsiveUtils.cardHeight(context, 44),
         decoration: PremiumTheme.glassActionButton,
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(14),
           child: BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-            child: Container(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(icon, size: 18, color: PremiumTheme.textSecondary),
-                  const SizedBox(width: 8),
-                  Text(
-                    label,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: PremiumTheme.textSecondary,
-                    ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  icon,
+                  size: ResponsiveUtils.iconSize(context, 16),
+                  color: PremiumTheme.textSecondary,
+                ),
+                SizedBox(width: ResponsiveUtils.spacing(context, 6)),
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: ResponsiveUtils.fontSize(context, 13),
+                    fontWeight: FontWeight.w500,
+                    color: PremiumTheme.textSecondary,
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
@@ -253,19 +270,22 @@ class PremiumHomeScreen extends StatelessWidget {
 
   /// Stats Grid (2x2 cards)
   Widget _buildStatsGrid(BuildContext context, AppState state) {
+    final columnCount = ResponsiveUtils.gridColumnCount(context);
+    
     return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: PremiumTheme.screenHorizontalPadding,
+      padding: EdgeInsets.symmetric(
+        horizontal: ResponsiveUtils.screenHorizontalPadding(context),
       ),
       child: GridView.count(
-        crossAxisCount: 2,
+        crossAxisCount: columnCount,
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
-        mainAxisSpacing: 12,
-        crossAxisSpacing: 12,
-        childAspectRatio: 1.8, // Reduced height - was 1.4
+        mainAxisSpacing: ResponsiveUtils.spacing(context, 10),
+        crossAxisSpacing: ResponsiveUtils.spacing(context, 10),
+        childAspectRatio: columnCount > 2 ? 1.6 : 2.0, // Increased to fix overflow
         children: [
           _buildStatCard(
+            context: context,
             icon: Icons.trending_up_rounded,
             value:
                 '\$${NumberFormat('#,##0').format(state.totalNetProfit.abs())}',
@@ -275,18 +295,21 @@ class PremiumHomeScreen extends StatelessWidget {
                 : PremiumTheme.lossRed,
           ),
           _buildStatCard(
+            context: context,
             icon: Icons.casino_rounded,
             value: '${state.sessions.length}',
             label: 'Sessions',
             color: PremiumTheme.primaryBlue,
           ),
           _buildStatCard(
+            context: context,
             icon: Icons.percent_rounded,
             value: '${state.winRate.toStringAsFixed(0)}%',
             label: 'Win Rate',
             color: PremiumTheme.primaryBlue,
           ),
           _buildStatCard(
+            context: context,
             icon: Icons.access_time_rounded,
             value: state.sessions.isEmpty
                 ? '0h'
@@ -300,6 +323,7 @@ class PremiumHomeScreen extends StatelessWidget {
   }
 
   Widget _buildStatCard({
+    required BuildContext context,
     required IconData icon,
     required String value,
     required String label,
@@ -308,52 +332,58 @@ class PremiumHomeScreen extends StatelessWidget {
     return Container(
       decoration: PremiumTheme.glassActionButton,
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(14),
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-          child: Container(
-            padding: const EdgeInsets.all(14),
+          child: Padding(
+            padding: EdgeInsets.all(ResponsiveUtils.padding(context, 12)),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-          // Icon and Value in same row
-          Row(
-            children: [
-              Container(
-                width: 36,
-                height: 36,
-                decoration: PremiumTheme.iconContainerDecoration,
-                child: Icon(icon, size: 18, color: PremiumTheme.primaryBlue),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  value,
-                  style: const TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w600,
-                    color: PremiumTheme.textPrimary,
+                // Icon and Value in same row
+                Row(
+                  children: [
+                    Container(
+                      width: ResponsiveUtils.iconSize(context, 32),
+                      height: ResponsiveUtils.iconSize(context, 32),
+                      decoration: PremiumTheme.iconContainerDecoration,
+                      child: Icon(
+                        icon,
+                        size: ResponsiveUtils.iconSize(context, 16),
+                        color: PremiumTheme.primaryBlue,
+                      ),
+                    ),
+                    SizedBox(width: ResponsiveUtils.spacing(context, 8)),
+                    Expanded(
+                      child: Text(
+                        value,
+                        style: TextStyle(
+                          fontSize: ResponsiveUtils.fontSize(context, 17),
+                          fontWeight: FontWeight.w600,
+                          color: PremiumTheme.textPrimary,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+
+                SizedBox(height: ResponsiveUtils.spacing(context, 6)),
+
+                // Label
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: ResponsiveUtils.fontSize(context, 12),
+                    fontWeight: FontWeight.w500,
+                    color: PremiumTheme.textSecondary,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 8),
-
-          // Label
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
-              color: PremiumTheme.textSecondary,
-            ),
-          ),
-        ],
+              ],
             ),
           ),
         ),

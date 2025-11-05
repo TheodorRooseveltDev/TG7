@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../../core/theme/premium_theme.dart';
 import '../../core/assets/app_assets.dart';
+import '../../core/utils/responsive_utils.dart';
 import '../../shared/widgets/space_background.dart';
 import '../../providers/app_state.dart';
 import '../../models/session.dart';
@@ -29,47 +30,50 @@ class _PremiumHomeScreenV2State extends State<PremiumHomeScreenV2> {
           builder: (context, state, _) {
             final filteredSessions = _getFilteredSessions(state.sessions);
             
-            return SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: 110),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 60),
-                    
-                    // Header: Greeting + Last Session Summary
-                    _buildHeader(state),
-                    
-                    const SizedBox(height: 24),
-                    
-                    // Period Selector
-                    _buildPeriodSelector(),
-                    
-                    const SizedBox(height: 24),
-                    
-                    // KPI Cards (4 metrics)
-                    _buildKPICards(filteredSessions),
-                    
-                    const SizedBox(height: 32),
-                    
-                    // Profit Over Time Chart
-                    _buildProfitChart(filteredSessions),
-                    
-                    const SizedBox(height: 32),
-                    
-                    // Breakdown by Game (Donut Chart)
-                    _buildGameBreakdown(state),
-                    
-                    const SizedBox(height: 32),
-                    
-                    // Saved Insights
-                    _buildInsightsCards(state),
-                    
-                    const SizedBox(height: 32),
-                    
-                    // Recent Notes (Latest 3)
-                    _buildRecentNotes(state),
-                  ],
+            return ResponsiveUtils.constrainWidth(
+              context,
+              SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 110),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(height: ResponsiveUtils.padding(context, 60)),
+                      
+                      // Header: Greeting + Last Session Summary
+                      _buildHeader(state),
+                      
+                      SizedBox(height: ResponsiveUtils.spacing(context, 24)),
+                      
+                      // Period Selector
+                      _buildPeriodSelector(),
+                      
+                      SizedBox(height: ResponsiveUtils.spacing(context, 24)),
+                      
+                      // KPI Cards (4 metrics)
+                      _buildKPICards(filteredSessions),
+                      
+                      SizedBox(height: ResponsiveUtils.spacing(context, 32)),
+                      
+                      // Profit Over Time Chart
+                      _buildProfitChart(filteredSessions),
+                      
+                      SizedBox(height: ResponsiveUtils.spacing(context, 32)),
+                      
+                      // Breakdown by Game (Donut Chart)
+                      _buildGameBreakdown(state),
+                      
+                      SizedBox(height: ResponsiveUtils.spacing(context, 32)),
+                      
+                      // Saved Insights
+                      _buildInsightsCards(state),
+                      
+                      SizedBox(height: ResponsiveUtils.spacing(context, 32)),
+                      
+                      // Recent Notes (Latest 3)
+                      _buildRecentNotes(state),
+                    ],
+                  ),
                 ),
               ),
             );
@@ -122,7 +126,9 @@ class _PremiumHomeScreenV2State extends State<PremiumHomeScreenV2> {
         : null;
     
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: PremiumTheme.screenHorizontalPadding),
+      padding: EdgeInsets.symmetric(
+        horizontal: ResponsiveUtils.screenHorizontalPadding(context),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -131,8 +137,8 @@ class _PremiumHomeScreenV2State extends State<PremiumHomeScreenV2> {
                 PremiumTheme.balanceTextGradient.createShader(bounds),
             child: Text(
               greeting,
-              style: const TextStyle(
-                fontSize: 32,
+              style: TextStyle(
+                fontSize: ResponsiveUtils.fontSize(context, 32),
                 fontWeight: FontWeight.w200,
                 color: Colors.white,
                 letterSpacing: -0.5,
@@ -140,9 +146,9 @@ class _PremiumHomeScreenV2State extends State<PremiumHomeScreenV2> {
             ),
           ),
           if (lastSession != null) ...[
-            const SizedBox(height: 8),
+            SizedBox(height: ResponsiveUtils.spacing(context, 8)),
             Container(
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.all(ResponsiveUtils.padding(context, 16)),
               decoration: PremiumTheme.glassActionButton,
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(16),
@@ -151,22 +157,22 @@ class _PremiumHomeScreenV2State extends State<PremiumHomeScreenV2> {
                   child: Row(
                     children: [
                       SizedBox(
-                        width: 28,
-                        height: 28,
+                        width: ResponsiveUtils.iconSize(context, 28),
+                        height: ResponsiveUtils.iconSize(context, 28),
                         child: Image.asset(
                           AppAssets.getGameIcon(lastSession.game),
                           fit: BoxFit.contain,
                         ),
                       ),
-                      const SizedBox(width: 12),
+                      SizedBox(width: ResponsiveUtils.spacing(context, 12)),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
                               'Last Session: ${lastSession.game}',
-                              style: const TextStyle(
-                                fontSize: 14,
+                              style: TextStyle(
+                                fontSize: ResponsiveUtils.fontSize(context, 14),
                                 fontWeight: FontWeight.w600,
                                 color: PremiumTheme.textPrimary,
                               ),
@@ -174,7 +180,7 @@ class _PremiumHomeScreenV2State extends State<PremiumHomeScreenV2> {
                             Text(
                               '${lastSession.netProfit >= 0 ? '+' : ''}$currencySymbol${lastSession.netProfit.toStringAsFixed(0)} • ${lastSession.formattedDuration}',
                               style: TextStyle(
-                                fontSize: 13,
+                                fontSize: ResponsiveUtils.fontSize(context, 13),
                                 color: lastSession.netProfit >= 0 
                                     ? PremiumTheme.successGreen 
                                     : PremiumTheme.lossRed,
@@ -197,22 +203,27 @@ class _PremiumHomeScreenV2State extends State<PremiumHomeScreenV2> {
   Widget _buildPeriodSelector() {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
-      padding: const EdgeInsets.symmetric(horizontal: PremiumTheme.screenHorizontalPadding),
+      padding: EdgeInsets.symmetric(
+        horizontal: ResponsiveUtils.screenHorizontalPadding(context),
+      ),
       child: Row(
         children: ['7d', '30d', 'YTD', 'All'].map((period) {
           final isSelected = _selectedPeriod == period;
           return GestureDetector(
             onTap: () => setState(() => _selectedPeriod = period),
             child: Container(
-              margin: const EdgeInsets.only(right: 8),
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              margin: EdgeInsets.only(right: ResponsiveUtils.spacing(context, 8)),
+              padding: EdgeInsets.symmetric(
+                horizontal: ResponsiveUtils.padding(context, 20),
+                vertical: ResponsiveUtils.padding(context, 12),
+              ),
               decoration: isSelected
                   ? PremiumTheme.gradientButtonDecoration
                   : PremiumTheme.glassActionButton,
               child: Text(
                 period,
                 style: TextStyle(
-                  fontSize: 14,
+                  fontSize: ResponsiveUtils.fontSize(context, 14),
                   fontWeight: FontWeight.w600,
                   color: isSelected ? Colors.white : PremiumTheme.textSecondary,
                 ),
@@ -236,14 +247,16 @@ class _PremiumHomeScreenV2State extends State<PremiumHomeScreenV2> {
         : sessions.where((s) => s.netProfit > 0).length / sessions.length * 100;
     
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: PremiumTheme.screenHorizontalPadding),
+      padding: EdgeInsets.symmetric(
+        horizontal: ResponsiveUtils.screenHorizontalPadding(context),
+      ),
       child: GridView.count(
-        crossAxisCount: 2,
+        crossAxisCount: ResponsiveUtils.isTablet(context) ? 4 : 2, // 4 columns on tablet, 2 on phone
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
-        mainAxisSpacing: 12,
-        crossAxisSpacing: 12,
-        childAspectRatio: 1.4, // Increased from 1.1 to make cards shorter
+        mainAxisSpacing: ResponsiveUtils.spacing(context, 12),
+        crossAxisSpacing: ResponsiveUtils.spacing(context, 12),
+        childAspectRatio: ResponsiveUtils.isTablet(context) ? 1.2 : 1.9, // Adjust for tablet layout
         children: [
           _buildKPICardWithIcon(
             'Net Profit',
@@ -282,49 +295,57 @@ class _PremiumHomeScreenV2State extends State<PremiumHomeScreenV2> {
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
           child: Container(
-            padding: const EdgeInsets.all(14), // Reduced from 16 to 14
+            padding: EdgeInsets.all(ResponsiveUtils.padding(context, 12)),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center, // Changed from spaceBetween to center
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Icon in small circular container
-                Container(
-                  width: 36, // Smaller circular container
-                  height: 36,
-                  decoration: BoxDecoration(
-                    color: color.withOpacity(0.15),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(8),
-                    child: Image.asset(
-                      iconPath,
-                      color: color,
-                      fit: BoxFit.contain,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 10), // Reduced spacing
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                // Row 1: Icon + Value
+                Row(
                   children: [
-                    Text(
-                      value,
-                      style: const TextStyle(
-                        fontSize: 22, // Slightly smaller from 24
-                        fontWeight: FontWeight.w600,
-                        color: PremiumTheme.textPrimary,
+                    // Icon in small circular container
+                    Container(
+                      width: ResponsiveUtils.iconSize(context, 32),
+                      height: ResponsiveUtils.iconSize(context, 32),
+                      decoration: BoxDecoration(
+                        color: color.withOpacity(0.15),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Padding(
+                        padding: EdgeInsets.all(ResponsiveUtils.padding(context, 7)),
+                        child: Image.asset(
+                          iconPath,
+                          color: color,
+                          fit: BoxFit.contain,
+                        ),
                       ),
                     ),
-                    const SizedBox(height: 2), // Reduced from 4 to 2
-                    Text(
-                      label,
-                      style: const TextStyle(
-                        fontSize: 11, // Slightly smaller from 12
-                        color: PremiumTheme.textSecondary,
+                    SizedBox(width: ResponsiveUtils.spacing(context, 8)),
+                    // Value
+                    Expanded(
+                      child: Text(
+                        value,
+                        style: TextStyle(
+                          fontSize: ResponsiveUtils.fontSize(context, 18),
+                          fontWeight: FontWeight.w600,
+                          color: PremiumTheme.textPrimary,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],
+                ),
+                SizedBox(height: ResponsiveUtils.spacing(context, 6)),
+                // Row 2: Label
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: ResponsiveUtils.fontSize(context, 11),
+                    color: PremiumTheme.textSecondary,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
@@ -352,7 +373,9 @@ class _PremiumHomeScreenV2State extends State<PremiumHomeScreenV2> {
     }
     
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: PremiumTheme.screenHorizontalPadding),
+      padding: EdgeInsets.symmetric(
+        horizontal: ResponsiveUtils.screenHorizontalPadding(context),
+      ),
       child: Container(
         decoration: PremiumTheme.glassActionButton,
         child: ClipRRect(
@@ -360,23 +383,28 @@ class _PremiumHomeScreenV2State extends State<PremiumHomeScreenV2> {
           child: BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
             child: Container(
-              padding: const EdgeInsets.all(20),
+              padding: EdgeInsets.all(ResponsiveUtils.padding(context, 20)),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     'Profit Over Time',
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: ResponsiveUtils.fontSize(context, 18),
                       fontWeight: FontWeight.w600,
                       color: PremiumTheme.textPrimary,
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  SizedBox(height: ResponsiveUtils.spacing(context, 20)),
                   AspectRatio(
-                    aspectRatio: 1.5,
+                    aspectRatio: ResponsiveUtils.isTablet(context) ? 2.2 : 1.5, // Wider aspect ratio for tablets
                     child: Padding(
-                      padding: const EdgeInsets.only(right: 16, top: 16, bottom: 8),
+                      padding: EdgeInsets.only(
+                        right: ResponsiveUtils.padding(context, 20),
+                        left: ResponsiveUtils.padding(context, 4),
+                        top: ResponsiveUtils.padding(context, 20),
+                        bottom: ResponsiveUtils.padding(context, 12),
+                      ),
                       child: LineChart(
                         LineChartData(
                           gridData: FlGridData(
@@ -409,7 +437,7 @@ class _PremiumHomeScreenV2State extends State<PremiumHomeScreenV2> {
                             leftTitles: AxisTitles(
                               sideTitles: SideTitles(
                                 showTitles: true,
-                                reservedSize: 55,
+                                reservedSize: ResponsiveUtils.isTablet(context) ? 70 : 55,
                                 interval: spots.isNotEmpty 
                                   ? () {
                                       final maxVal = spots.map((s) => s.y).reduce((a, b) => a > b ? a : b).abs();
@@ -434,8 +462,8 @@ class _PremiumHomeScreenV2State extends State<PremiumHomeScreenV2> {
                                   
                                   return Text(
                                     formattedValue,
-                                    style: const TextStyle(
-                                      fontSize: 11,
+                                    style: TextStyle(
+                                      fontSize: ResponsiveUtils.fontSize(context, 11),
                                       color: PremiumTheme.textQuaternary,
                                     ),
                                   );
@@ -445,6 +473,7 @@ class _PremiumHomeScreenV2State extends State<PremiumHomeScreenV2> {
                             bottomTitles: AxisTitles(
                               sideTitles: SideTitles(
                                 showTitles: true,
+                                reservedSize: ResponsiveUtils.padding(context, 30),
                                 interval: spots.length > 4 
                                   ? (spots.length / 4).ceil().toDouble()
                                   : 1,
@@ -454,11 +483,11 @@ class _PremiumHomeScreenV2State extends State<PremiumHomeScreenV2> {
                                   }
                                   final session = sortedSessions[value.toInt()];
                                   return Padding(
-                                    padding: const EdgeInsets.only(top: 8),
+                                    padding: EdgeInsets.only(top: ResponsiveUtils.padding(context, 4)),
                                     child: Text(
                                       DateFormat('M/d').format(session.startTime),
-                                      style: const TextStyle(
-                                        fontSize: 10,
+                                      style: TextStyle(
+                                        fontSize: ResponsiveUtils.fontSize(context, 10),
                                         color: PremiumTheme.textQuaternary,
                                       ),
                                     ),
@@ -469,25 +498,34 @@ class _PremiumHomeScreenV2State extends State<PremiumHomeScreenV2> {
                           ),
                           borderData: FlBorderData(show: false),
                           minY: spots.isNotEmpty 
-                            ? spots.map((s) => s.y).reduce((a, b) => a < b ? a : b) * 1.2
+                            ? () {
+                                final minValue = spots.map((s) => s.y).reduce((a, b) => a < b ? a : b);
+                                // Add 10% padding below, but in the right direction
+                                return minValue < 0 ? minValue * 1.1 : minValue * 0.9;
+                              }()
                             : 0,
                           maxY: spots.isNotEmpty 
-                            ? spots.map((s) => s.y).reduce((a, b) => a > b ? a : b) * 1.2
+                            ? () {
+                                final maxValue = spots.map((s) => s.y).reduce((a, b) => a > b ? a : b);
+                                // Add 10% padding above, but in the right direction
+                                return maxValue > 0 ? maxValue * 1.1 : maxValue * 0.9;
+                              }()
                             : 100,
+                          clipData: FlClipData.all(), // Clip any overflow
                           lineBarsData: [
                             LineChartBarData(
                               spots: spots,
                               isCurved: true,
                               gradient: PremiumTheme.bluePurpleGradient,
-                              barWidth: 3,
+                              barWidth: ResponsiveUtils.isTablet(context) ? 4 : 3,
                               isStrokeCapRound: true,
                               dotData: FlDotData(
                                 show: true,
                                 getDotPainter: (spot, percent, barData, index) {
                                   return FlDotCirclePainter(
-                                    radius: 4,
+                                    radius: ResponsiveUtils.isTablet(context) ? 5 : 4,
                                     color: PremiumTheme.primaryBlue,
-                                    strokeWidth: 2,
+                                    strokeWidth: ResponsiveUtils.isTablet(context) ? 2.5 : 2,
                                     strokeColor: PremiumTheme.deepNavyCenter,
                                   );
                                 },

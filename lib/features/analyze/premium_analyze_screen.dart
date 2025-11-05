@@ -5,6 +5,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
 import '../../core/theme/premium_theme.dart';
 import '../../core/assets/app_assets.dart';
+import '../../core/utils/responsive_utils.dart';
 import '../../shared/widgets/space_background.dart';
 import '../../providers/app_state.dart';
 
@@ -32,94 +33,96 @@ class _PremiumAnalyzeScreenState extends State<PremiumAnalyzeScreen> {
       body: SpaceBackground(
         child: Consumer<AppState>(
           builder: (context, state, _) {
-            return SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.only(
-                  bottom: 110, // Space for floating tab bar
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Header
-                    Padding(
-                      padding: const EdgeInsets.only(
-                        top: 80,
-                        left: PremiumTheme.screenHorizontalPadding,
-                        right: PremiumTheme.screenHorizontalPadding,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Analytics',
-                            style: TextStyle(
-                              fontSize: 32,
-                              fontWeight: FontWeight.w600,
-                              color: PremiumTheme.textPrimary,
+            return ResponsiveUtils.constrainWidth(
+              context,
+              SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.only(
+                    bottom: 110, // Space for floating tab bar
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Header
+                      Padding(
+                        padding: EdgeInsets.only(
+                          top: ResponsiveUtils.padding(context, 80),
+                          left: ResponsiveUtils.screenHorizontalPadding(context),
+                          right: ResponsiveUtils.screenHorizontalPadding(context),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Analytics',
+                              style: TextStyle(
+                                fontSize: ResponsiveUtils.fontSize(context, 32),
+                                fontWeight: FontWeight.w600,
+                                color: PremiumTheme.textPrimary,
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'Insights from your gaming sessions',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: PremiumTheme.textTertiary,
+                            SizedBox(height: ResponsiveUtils.spacing(context, 8)),
+                            Text(
+                              'Insights from your gaming sessions',
+                              style: TextStyle(
+                                fontSize: ResponsiveUtils.fontSize(context, 14),
+                                color: PremiumTheme.textTertiary,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
 
-                    const SizedBox(height: 32),
+                      SizedBox(height: ResponsiveUtils.spacing(context, 32)),
 
-                    // Period selector
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: PremiumTheme.screenHorizontalPadding,
+                      // Period selector
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: ResponsiveUtils.screenHorizontalPadding(context),
+                        ),
+                        child: _buildPeriodSelector(),
                       ),
-                      child: _buildPeriodSelector(),
-                    ),
 
-                    const SizedBox(height: 32),
+                      SizedBox(height: ResponsiveUtils.spacing(context, 32)),
 
-                    // Profit chart
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: PremiumTheme.screenHorizontalPadding,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Profit Over Time',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w600,
-                              color: PremiumTheme.textPrimary,
+                      // Profit chart
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: ResponsiveUtils.screenHorizontalPadding(context),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Profit Over Time',
+                              style: TextStyle(
+                                fontSize: ResponsiveUtils.fontSize(context, 20),
+                                fontWeight: FontWeight.w600,
+                                color: PremiumTheme.textPrimary,
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 16),
-                          _buildProfitChart(state),
-                        ],
+                            SizedBox(height: ResponsiveUtils.spacing(context, 16)),
+                            _buildProfitChart(state),
+                          ],
+                        ),
                       ),
-                    ),
 
-                    const SizedBox(height: 32),
+                      SizedBox(height: ResponsiveUtils.spacing(context, 32)),
 
-                    // Overview Stats
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: PremiumTheme.screenHorizontalPadding,
+                      // Overview Stats
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: ResponsiveUtils.screenHorizontalPadding(context),
+                        ),
+                        child: _buildOverviewStats(state),
                       ),
-                      child: _buildOverviewStats(state),
-                    ),
 
-                    const SizedBox(height: 32),
+                    SizedBox(height: ResponsiveUtils.spacing(context, 32)),
 
                     // Game breakdown
                     Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: PremiumTheme.screenHorizontalPadding,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: ResponsiveUtils.screenHorizontalPadding(context),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -127,21 +130,22 @@ class _PremiumAnalyzeScreenState extends State<PremiumAnalyzeScreen> {
                           Text(
                             'Profit by Game',
                             style: TextStyle(
-                              fontSize: 20,
+                              fontSize: ResponsiveUtils.fontSize(context, 20),
                               fontWeight: FontWeight.w600,
                               color: PremiumTheme.textPrimary,
                             ),
                           ),
-                          const SizedBox(height: 16),
+                          SizedBox(height: ResponsiveUtils.spacing(context, 16)),
                           _buildGameBreakdown(state),
                         ],
                       ),
                     ),
 
-                    const SizedBox(height: 32),
+                    SizedBox(height: ResponsiveUtils.spacing(context, 32)),
                   ],
                 ),
               ),
+            ),
             );
           },
         ),
@@ -228,11 +232,16 @@ class _PremiumAnalyzeScreenState extends State<PremiumAnalyzeScreen> {
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
           child: Container(
-            padding: const EdgeInsets.all(20),
+            padding: EdgeInsets.all(ResponsiveUtils.padding(context, 20)),
             child: AspectRatio(
-              aspectRatio: 1.5,
+              aspectRatio: ResponsiveUtils.isTablet(context) ? 2.2 : 1.5, // Wider aspect ratio for tablets
               child: Padding(
-                padding: const EdgeInsets.only(right: 16, top: 16, bottom: 8),
+                padding: EdgeInsets.only(
+                  right: ResponsiveUtils.padding(context, 20),
+                  left: ResponsiveUtils.padding(context, 4),
+                  top: ResponsiveUtils.padding(context, 20),
+                  bottom: ResponsiveUtils.padding(context, 12),
+                ),
                 child: LineChart(
                   LineChartData(
               gridData: FlGridData(
@@ -265,7 +274,7 @@ class _PremiumAnalyzeScreenState extends State<PremiumAnalyzeScreen> {
                 leftTitles: AxisTitles(
                   sideTitles: SideTitles(
                     showTitles: true,
-                    reservedSize: 55,
+                    reservedSize: ResponsiveUtils.isTablet(context) ? 70 : 55,
                     interval: spots.isNotEmpty 
                       ? () {
                           final maxVal = spots.map((s) => s.y).reduce((a, b) => a > b ? a : b).abs();
@@ -291,7 +300,7 @@ class _PremiumAnalyzeScreenState extends State<PremiumAnalyzeScreen> {
                       return Text(
                         formattedValue,
                         style: TextStyle(
-                          fontSize: 11,
+                          fontSize: ResponsiveUtils.fontSize(context, 11),
                           color: PremiumTheme.textQuaternary,
                         ),
                       );
@@ -301,6 +310,7 @@ class _PremiumAnalyzeScreenState extends State<PremiumAnalyzeScreen> {
                 bottomTitles: AxisTitles(
                   sideTitles: SideTitles(
                     showTitles: true,
+                    reservedSize: ResponsiveUtils.padding(context, 30),
                     interval: (spots.length / 4).ceil().toDouble(),
                     getTitlesWidget: (value, meta) {
                       if (value.toInt() >= sortedSessions.length) {
@@ -308,11 +318,11 @@ class _PremiumAnalyzeScreenState extends State<PremiumAnalyzeScreen> {
                       }
                       final session = sortedSessions[value.toInt()];
                       return Padding(
-                        padding: const EdgeInsets.only(top: 8),
+                        padding: EdgeInsets.only(top: ResponsiveUtils.padding(context, 4)),
                         child: Text(
                           DateFormat('M/d').format(session.startTime),
                           style: TextStyle(
-                            fontSize: 10,
+                            fontSize: ResponsiveUtils.fontSize(context, 10),
                             color: PremiumTheme.textQuaternary,
                           ),
                         ),
@@ -322,22 +332,31 @@ class _PremiumAnalyzeScreenState extends State<PremiumAnalyzeScreen> {
                 ),
               ),
               borderData: FlBorderData(show: false),
-              minY: spots.map((s) => s.y).reduce((a, b) => a < b ? a : b) * 1.2,
-              maxY: spots.map((s) => s.y).reduce((a, b) => a > b ? a : b) * 1.2,
+              minY: () {
+                final minValue = spots.map((s) => s.y).reduce((a, b) => a < b ? a : b);
+                // Add 10% padding below, but in the right direction
+                return minValue < 0 ? minValue * 1.1 : minValue * 0.9;
+              }(),
+              maxY: () {
+                final maxValue = spots.map((s) => s.y).reduce((a, b) => a > b ? a : b);
+                // Add 10% padding above, but in the right direction
+                return maxValue > 0 ? maxValue * 1.1 : maxValue * 0.9;
+              }(),
+              clipData: FlClipData.all(), // Clip any overflow
               lineBarsData: [
                 LineChartBarData(
                   spots: spots,
                   isCurved: true,
                   gradient: PremiumTheme.bluePurpleGradient,
-                  barWidth: 3,
+                  barWidth: ResponsiveUtils.isTablet(context) ? 4 : 3,
                   isStrokeCapRound: true,
                   dotData: FlDotData(
                     show: true,
                     getDotPainter: (spot, percent, barData, index) {
                       return FlDotCirclePainter(
-                        radius: 4,
+                        radius: ResponsiveUtils.isTablet(context) ? 5 : 4,
                         color: PremiumTheme.primaryBlue,
-                        strokeWidth: 2,
+                        strokeWidth: ResponsiveUtils.isTablet(context) ? 2.5 : 2,
                         strokeColor: PremiumTheme.deepNavyCenter,
                       );
                     },

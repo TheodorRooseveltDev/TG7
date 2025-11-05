@@ -407,32 +407,32 @@ class _PremiumSessionsScreenState extends State<PremiumSessionsScreen> {
             child: BackdropFilter(
               filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
               child: Container(
-                padding: const EdgeInsets.all(32),
+                padding: const EdgeInsets.all(24), // Reduced from 32 to 24
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     // Custom empty state image
                     Image.asset(
                       AppAssets.noSessionsImage,
-                      width: 160,
-                      height: 160,
+                      width: 120, // Reduced from 160 to 120
+                      height: 120,
                       fit: BoxFit.contain,
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 16), // Reduced from 24 to 16
                     const Text(
                       'No Sessions Yet',
                       style: TextStyle(
-                        fontSize: 24,
+                        fontSize: 20, // Reduced from 24 to 20
                         fontWeight: FontWeight.w600,
                         color: PremiumTheme.textPrimary,
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 6), // Reduced from 8 to 6
                     const Text(
                       'Tap the + button to log your first session',
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: 14, // Reduced from 16 to 14
                         color: PremiumTheme.textSecondary,
                       ),
                     ),
