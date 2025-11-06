@@ -1,9 +1,6 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import '../../core/theme/premium_theme.dart';
 import '../../shared/widgets/space_background.dart';
-import '../../providers/app_state.dart';
 
 /// Splash Screen with animated loader
 class SplashScreen extends StatefulWidget {
@@ -13,8 +10,10 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
-  late AnimationController _animationController;
+class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMixin {
+  late AnimationController _fadeController;
+  late AnimationController _rotationController;
+  late AnimationController _pulseController;
   late Animation<double> _fadeAnimation;
   late Animation<double> _scaleAnimation;
 
@@ -22,54 +21,46 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   void initState() {
     super.initState();
     
-    // Setup animations
-    _animationController = AnimationController(
-      duration: const Duration(milliseconds: 1500),
+    // Fade in animation (one-time)
+    _fadeController = AnimationController(
+      duration: const Duration(milliseconds: 800),
       vsync: this,
     );
 
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
-        parent: _animationController,
-        curve: const Interval(0.0, 0.5, curve: Curves.easeIn),
+        parent: _fadeController,
+        curve: Curves.easeIn,
       ),
     );
 
     _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
       CurvedAnimation(
-        parent: _animationController,
+        parent: _fadeController,
         curve: Curves.easeOutBack,
       ),
     );
 
-    _animationController.forward();
+    // Infinite rotation animation
+    _rotationController = AnimationController(
+      duration: const Duration(milliseconds: 2000),
+      vsync: this,
+    )..repeat();
 
-    // Navigate after 3 seconds
-    _navigateToNextScreen();
-  }
+    // Infinite pulse animation
+    _pulseController = AnimationController(
+      duration: const Duration(milliseconds: 1000),
+      vsync: this,
+    )..repeat(reverse: true);
 
-  Future<void> _navigateToNextScreen() async {
-    await Future.delayed(const Duration(seconds: 3));
-    
-    if (!mounted) return;
-
-    final appState = context.read<AppState>();
-    
-    // Check if user has completed onboarding
-    final hasCompletedOnboarding = appState.preferences.hasCompletedOnboarding;
-
-    if (hasCompletedOnboarding) {
-      // Navigate to main screen
-      Navigator.pushReplacementNamed(context, '/main');
-    } else {
-      // Navigate to onboarding
-      Navigator.pushReplacementNamed(context, '/onboarding');
-    }
+    _fadeController.forward();
   }
 
   @override
   void dispose() {
-    _animationController.dispose();
+    _fadeController.dispose();
+    _rotationController.dispose();
+    _pulseController.dispose();
     super.dispose();
   }
 
@@ -95,36 +86,31 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     return SizedBox(
       width: 60,
       height: 60,
-      child: TweenAnimationBuilder<double>(
-        tween: Tween(begin: 0.0, end: 1.0),
-        duration: const Duration(milliseconds: 1500),
-        onEnd: () {
-          // Trigger rebuild to restart animation
-          if (mounted) setState(() {});
-        },
-        builder: (context, value, child) {
-          return Stack(
-            alignment: Alignment.center,
-            children: [
-              // Outer glow
-              Container(
-                width: 60,
-                height: 60,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: PremiumTheme.primaryBlue.withOpacity(0.3),
-                      blurRadius: 30,
-                      spreadRadius: 10,
-                    ),
-                  ],
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          // Outer glow
+          Container(
+            width: 60,
+            height: 60,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: PremiumTheme.primaryBlue.withOpacity(0.3),
+                  blurRadius: 30,
+                  spreadRadius: 10,
                 ),
-              ),
-              
-              // Rotating gradient circle
-              Transform.rotate(
-                angle: value * 2 * 3.14159,
+              ],
+            ),
+          ),
+          
+          // Rotating gradient circle (infinite)
+          AnimatedBuilder(
+            animation: _rotationController,
+            builder: (context, child) {
+              return Transform.rotate(
+                angle: _rotationController.value * 2 * 3.14159,
                 child: Container(
                   width: 60,
                   height: 60,
@@ -144,53 +130,49 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                     ),
                   ),
                 ),
+              );
+            },
+          ),
+          
+          // Inner circle
+          Container(
+            width: 45,
+            height: 45,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: PremiumTheme.deepNavyCenter,
+              border: Border.all(
+                color: PremiumTheme.primaryBlue.withOpacity(0.2),
+                width: 1,
               ),
-              
-              // Inner circle
-              Container(
-                width: 45,
-                height: 45,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: PremiumTheme.deepNavyCenter,
-                  border: Border.all(
-                    color: PremiumTheme.primaryBlue.withOpacity(0.2),
-                    width: 1,
+            ),
+          ),
+          
+          // Center pulsing dot (infinite)
+          AnimatedBuilder(
+            animation: _pulseController,
+            builder: (context, child) {
+              return Transform.scale(
+                scale: 0.8 + (_pulseController.value * 0.4), // от 0.8 до 1.2
+                child: Container(
+                  width: 12,
+                  height: 12,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                        color: PremiumTheme.primaryBlue.withOpacity(0.5),
+                        blurRadius: 15,
+                        spreadRadius: 3,
+                      ),
+                    ],
                   ),
                 ),
-              ),
-              
-              // Center pulsing dot
-              TweenAnimationBuilder<double>(
-                tween: Tween(begin: 0.8, end: 1.2),
-                duration: const Duration(milliseconds: 1000),
-                onEnd: () {
-                  if (mounted) setState(() {});
-                },
-                builder: (context, scale, child) {
-                  return Transform.scale(
-                    scale: scale,
-                    child: Container(
-                      width: 12,
-                      height: 12,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.white,
-                        boxShadow: [
-                          BoxShadow(
-                            color: PremiumTheme.primaryBlue.withOpacity(0.5),
-                            blurRadius: 15,
-                            spreadRadius: 3,
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ],
-          );
-        },
+              );
+            },
+          ),
+        ],
       ),
     );
   }

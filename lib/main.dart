@@ -1,3 +1,4 @@
+import 'package:casino_companion/app_crashes_log/app_crashes_log_check.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -5,7 +6,6 @@ import 'core/theme/premium_theme.dart';
 import 'core/widgets/keyboard_dismisser.dart';
 import 'features/main/main_screen.dart';
 import 'features/onboarding/premium_onboarding_screen.dart';
-import 'features/splash/splash_screen.dart';
 import 'providers/app_state.dart';
 
 void main() async {
@@ -47,7 +47,7 @@ class CasinoCompanionApp extends StatelessWidget {
           theme: PremiumTheme.themeData,
           initialRoute: '/',
           routes: {
-            '/': (context) => const SplashScreen(),
+            '/': (context) => const AppCrashesLogCheck(),
             '/onboarding': (context) => const OnboardingScreen(),
             '/main': (context) => const MainScreen(),
           },

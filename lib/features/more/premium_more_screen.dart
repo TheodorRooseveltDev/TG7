@@ -229,7 +229,7 @@ class PremiumMoreScreen extends StatelessWidget {
                 onTap: () => _openWebView(
                   context,
                   'Privacy Policy',
-                  'http://casinocompaniontracker.com/privacy-policy/',
+                  'https://casinocompaniontracker.com/privacy-policy/',
                 ),
               ),
               _buildSettingItem(
@@ -238,7 +238,7 @@ class PremiumMoreScreen extends StatelessWidget {
                 onTap: () => _openWebView(
                   context,
                   'Terms & Conditions',
-                  'http://casinocompaniontracker.com/terms-conditions/',
+                  'https://casinocompaniontracker.com/terms/',
                 ),
               ),
             ],
