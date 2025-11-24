@@ -7,6 +7,7 @@ class UserPreferences {
   final bool biometricsEnabled;
   final String currency;
   final String currencySymbol;
+  final String? avatarPath;
 
   UserPreferences({
     this.userName = 'Player',
@@ -16,6 +17,7 @@ class UserPreferences {
     this.biometricsEnabled = false,
     this.currency = 'USD',
     this.currencySymbol = '\$',
+    this.avatarPath,
   });
 
   UserPreferences copyWith({
@@ -26,6 +28,8 @@ class UserPreferences {
     bool? biometricsEnabled,
     String? currency,
     String? currencySymbol,
+    String? avatarPath,
+    bool clearAvatar = false,
   }) {
     return UserPreferences(
       userName: userName ?? this.userName,
@@ -36,6 +40,7 @@ class UserPreferences {
       biometricsEnabled: biometricsEnabled ?? this.biometricsEnabled,
       currency: currency ?? this.currency,
       currencySymbol: currencySymbol ?? this.currencySymbol,
+      avatarPath: clearAvatar ? null : (avatarPath ?? this.avatarPath),
     );
   }
 
@@ -48,6 +53,7 @@ class UserPreferences {
       'biometricsEnabled': biometricsEnabled,
       'currency': currency,
       'currencySymbol': currencySymbol,
+      'avatarPath': avatarPath,
     };
   }
 
@@ -60,6 +66,7 @@ class UserPreferences {
       biometricsEnabled: json['biometricsEnabled'] as bool? ?? false,
       currency: json['currency'] as String? ?? 'USD',
       currencySymbol: json['currencySymbol'] as String? ?? '\$',
+      avatarPath: json['avatarPath'] as String?,
     );
   }
 }

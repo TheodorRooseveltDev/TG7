@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:advertising_id/advertising_id.dart';
 import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 import 'package:appsflyer_sdk/appsflyer_sdk.dart';
-import 'package:casino_companion/app_crashes_log/app_crashes_log_check.dart';
+import 'package:casino_companion/app_crashes_log/app_crashes_log.dart';
 import 'package:casino_companion/app_crashes_log/app_crashes_log_parameters.dart';
 import 'package:casino_companion/app_crashes_log/app_crashes_log_web_view.dart';
 import 'package:flutter/material.dart';
@@ -13,38 +13,61 @@ import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:uuid/uuid.dart';
 
 class AppCrashesLogService {
-  Future<void> initializeOneSignal() async {
+  Future<void> appCrashesLogInitializeOneSignal() async {
     await OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
     await OneSignal.Location.setShared(false);
     OneSignal.initialize(appCrashesLogOneSignalString);
-    await Future.delayed(const Duration(seconds: 1));
+    appCrashesLogExternalId = Uuid().v1();
+  }
+
+  Future<void> appCrashesLogRequestPermissionOneSignal() async {
     await OneSignal.Notifications.requestPermission(true);
     appCrashesLogExternalId = Uuid().v1();
     try {
       OneSignal.login(appCrashesLogExternalId!);
+      OneSignal.User.pushSubscription.addObserver((state) {});
     } catch (_) {}
   }
 
-  Future navigateToAppCrashesLogSplash(BuildContext context) async {
-    appCrashesLogCheckSharedPreferences.setBool("appCrashesLogSent", true);
-    openStandartAppLogic(context);
+  void appCrashesLogSendRequiestToBack() {
+    try {
+      OneSignal.login(appCrashesLogExternalId!);
+      OneSignal.User.pushSubscription.addObserver((state) {});
+    } catch (_) {}
   }
 
-  void navigateToAppCrashesLogWebView(BuildContext context) {
+  Future appCrashesLogNavigateToSplash(BuildContext context) async {
+    appCrashesLogSharedPreferences.setBool("sendedAnalytics", true);
+    appCrashesLogOpenStandartAppLogic(context);
+  }
+
+  Future<bool> isSystemPermissionGranted() async {
+    if (!Platform.isIOS) return false;
+    try {
+      final status = await OneSignal.Notifications.permissionNative();
+      return status == OSNotificationPermission.authorized ||
+          status == OSNotificationPermission.provisional ||
+          status == OSNotificationPermission.ephemeral;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  void appCrashesLogNavigateToWebView(BuildContext context) {
     Navigator.of(context).pushReplacement(
       PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) =>
-            const AppCrashesLogWebView(),
+            const AppCrashesLogWebViewWidget(),
         transitionDuration: Duration.zero,
         reverseTransitionDuration: Duration.zero,
       ),
     );
   }
 
-  AppsFlyerOptions createAppCrashesLogAppsFlyerOptions() {
+  AppsFlyerOptions appCrashesLogCreateAppsFlyerOptions() {
     return AppsFlyerOptions(
-      afDevKey: (afDevKey1 + afDevKey2),
-      appId: devKeypndAppId,
+      afDevKey: (appCrashesLogAfDevKey1 + appCrashesLogAfDevKey2),
+      appId: appCrashesLogDevKeypndAppId,
       timeToWaitForATTUserAuthorization: 7,
       showDebug: true,
       disableAdvertisingIdentifier: false,
@@ -53,32 +76,32 @@ class AppCrashesLogService {
     );
   }
 
-  Future<void> requestUserSafeTrackingPermission() async {
+  Future<void> appCrashesLogRequestTrackingPermission() async {
     if (Platform.isIOS) {
       if (await AppTrackingTransparency.trackingAuthorizationStatus ==
           TrackingStatus.notDetermined) {
         await Future.delayed(const Duration(seconds: 2));
         final status =
             await AppTrackingTransparency.requestTrackingAuthorization();
-        appCrashesLogTrackingStatus = status.toString();
+        appCrashesLogTrackingPermissionStatus = status.toString();
 
         if (status == TrackingStatus.authorized) {
-          getAppCrashesLogAdvertisingId();
+          appCrashesLogGetAdvertisingId();
         }
         if (status == TrackingStatus.notDetermined) {
           final status =
               await AppTrackingTransparency.requestTrackingAuthorization();
-          appCrashesLogTrackingStatus = status.toString();
+          appCrashesLogTrackingPermissionStatus = status.toString();
 
           if (status == TrackingStatus.authorized) {
-            getAppCrashesLogAdvertisingId();
+            appCrashesLogGetAdvertisingId();
           }
         }
       }
     }
   }
 
-  Future<void> getAppCrashesLogAdvertisingId() async {
+  Future<void> appCrashesLogGetAdvertisingId() async {
     try {
       appCrashesLogAdvertisingId = await AdvertisingId.id(true);
     } catch (_) {}
@@ -91,10 +114,10 @@ class AppCrashesLogService {
       final jsonString = json.encode(parameters);
       final base64Parameters = base64.encode(utf8.encode(jsonString));
 
-      final requestBody = {appCrashesLogParameter: base64Parameters};
+      final requestBody = {appCrashesLogStandartWord: base64Parameters};
 
       final response = await http.post(
-        Uri.parse(urlAppCrashesLogLink),
+        Uri.parse(appCrashesLogUrl),
         body: requestBody,
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
       );
@@ -109,3 +132,4 @@ class AppCrashesLogService {
     }
   }
 }
+

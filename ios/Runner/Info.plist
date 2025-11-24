@@ -26,6 +26,10 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Please allow access to camera to take photo for a profile image.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Please allow access to your photo library to choose a profile picture.</string>
 	<key>NSUserTrackingUsageDescription</key>
 	<string>Help us improve by allowing anonymous usage tracking. Your privacy is always protected.</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>

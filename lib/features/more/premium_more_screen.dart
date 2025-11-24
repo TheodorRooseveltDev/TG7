@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
@@ -8,6 +9,7 @@ import '../../core/assets/app_assets.dart';
 import '../../shared/widgets/space_background.dart';
 import '../../providers/app_state.dart';
 import '../../models/note.dart';
+import '../../services/avatar_service.dart';
 import '../onboarding/premium_onboarding_screen.dart';
 
 class PremiumMoreScreen extends StatelessWidget {
@@ -68,7 +70,7 @@ class PremiumMoreScreen extends StatelessWidget {
                     const SizedBox(height: 32),
 
                     // Profile Card
-                    _buildProfileCard(state),
+                    _buildProfileCard(context, state),
 
                     const SizedBox(height: 24),
 
@@ -99,7 +101,7 @@ class PremiumMoreScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildProfileCard(AppState state) {
+  Widget _buildProfileCard(BuildContext context, AppState state) {
     final totalSessions = state.sessions.length;
     final winRate = state.winRate;
 
@@ -117,42 +119,88 @@ class PremiumMoreScreen extends StatelessWidget {
               padding: const EdgeInsets.all(20),
               child: Row(
                 children: [
-            // Avatar
-            Container(
-              width: 60,
-              height: 60,
-              decoration: BoxDecoration(
-                gradient: PremiumTheme.bluePurpleGradient,
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(Icons.person, size: 32, color: Colors.white),
-            ),
-            const SizedBox(width: 16),
-            // Info
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    state.preferences.userName,
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
-                      color: PremiumTheme.textPrimary,
+                  // Avatar - Clickable
+                  GestureDetector(
+                    onTap: () => _showAvatarPicker(context, state),
+                    child: Stack(
+                      children: [
+                        Container(
+                          width: 60,
+                          height: 60,
+                          decoration: BoxDecoration(
+                            gradient: state.preferences.avatarPath == null
+                                ? PremiumTheme.bluePurpleGradient
+                                : null,
+                            shape: BoxShape.circle,
+                            image: state.preferences.avatarPath != null &&
+                                    state.preferences.avatarPath!.isNotEmpty
+                                ? DecorationImage(
+                                    image: FileImage(
+                                      File(state.preferences.avatarPath!),
+                                    ),
+                                    fit: BoxFit.cover,
+                                  )
+                                : null,
+                          ),
+                          child: state.preferences.avatarPath == null ||
+                                  state.preferences.avatarPath!.isEmpty
+                              ? const Icon(
+                                  Icons.person,
+                                  size: 32,
+                                  color: Colors.white,
+                                )
+                              : null,
+                        ),
+                        Positioned(
+                          bottom: 0,
+                          right: 0,
+                          child: Container(
+                            width: 20,
+                            height: 20,
+                            decoration: BoxDecoration(
+                              gradient: PremiumTheme.bluePurpleGradient,
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: const Color(0xFF0f1425),
+                                width: 2,
+                              ),
+                            ),
+                            child: const Icon(
+                              Icons.camera_alt,
+                              size: 10,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '$totalSessions sessions • ${winRate.toInt()}% win rate',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: PremiumTheme.textSecondary,
+                  const SizedBox(width: 16),
+                  // Info
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          state.preferences.userName,
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w600,
+                            color: PremiumTheme.textPrimary,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          '$totalSessions sessions • ${winRate.toInt()}% win rate',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: PremiumTheme.textSecondary,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
-              ),
-            ),
-          ],
               ),
             ),
           ),
@@ -179,6 +227,12 @@ class PremiumMoreScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
+          _buildSettingItem(
+            icon: Icons.account_circle_outlined,
+            title: 'Change Avatar',
+            subtitle: 'Update your profile picture',
+            onTap: () => _showAvatarPicker(context, state),
+          ),
           _buildSettingItem(
             icon: Icons.person_outline_rounded,
             title: 'Edit Name',
@@ -1226,6 +1280,36 @@ class PremiumMoreScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void _showAvatarPicker(BuildContext context, AppState state) async {
+    final result = await AvatarService.showAvatarPickerSheet(context);
+    
+    debugPrint('🖼️ Avatar picker result: $result');
+    
+    if (result != null) {
+      // Delete old avatar if exists
+      if (state.preferences.avatarPath != null &&
+          state.preferences.avatarPath!.isNotEmpty) {
+        await AvatarService.deleteOldAvatar(state.preferences.avatarPath);
+      }
+      
+      // Update preferences with new avatar path (or clear if empty string)
+      if (result.isEmpty) {
+        // User wants to remove avatar
+        debugPrint('🗑️ Clearing avatar');
+        state.updatePreferences(
+          state.preferences.copyWith(clearAvatar: true),
+        );
+      } else {
+        // User selected a new avatar
+        debugPrint('✨ Setting new avatar: $result');
+        state.updatePreferences(
+          state.preferences.copyWith(avatarPath: result),
+        );
+        debugPrint('💾 Saved avatar path: ${state.preferences.avatarPath}');
+      }
+    }
   }
 
   void _openWebView(BuildContext context, String title, String url) {

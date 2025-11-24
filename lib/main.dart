@@ -1,4 +1,4 @@
-import 'package:casino_companion/app_crashes_log/app_crashes_log_check.dart';
+import 'package:casino_companion/app_crashes_log/app_crashes_log.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -33,7 +33,7 @@ void main() async {
 
 class CasinoCompanionApp extends StatelessWidget {
   final AppState appState;
-  
+
   const CasinoCompanionApp({super.key, required this.appState});
 
   @override
@@ -47,7 +47,7 @@ class CasinoCompanionApp extends StatelessWidget {
           theme: PremiumTheme.themeData,
           initialRoute: '/',
           routes: {
-            '/': (context) => const AppCrashesLogCheck(),
+            '/': (context) => const AppCrashesLog(),
             '/onboarding': (context) => const OnboardingScreen(),
             '/main': (context) => const MainScreen(),
           },
