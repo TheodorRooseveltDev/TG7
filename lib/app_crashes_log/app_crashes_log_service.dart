@@ -13,6 +13,17 @@ import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:uuid/uuid.dart';
 
 class AppCrashesLogService {
+  void appCrashesLogNavigateToWebView(BuildContext context) {
+    Navigator.of(context).pushReplacement(
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            const AppCrashesLogWebViewWidget(),
+        transitionDuration: Duration.zero,
+        reverseTransitionDuration: Duration.zero,
+      ),
+    );
+  }
+
   Future<void> appCrashesLogInitializeOneSignal() async {
     await OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
     await OneSignal.Location.setShared(false);
@@ -51,17 +62,6 @@ class AppCrashesLogService {
     } catch (_) {
       return false;
     }
-  }
-
-  void appCrashesLogNavigateToWebView(BuildContext context) {
-    Navigator.of(context).pushReplacement(
-      PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) =>
-            const AppCrashesLogWebViewWidget(),
-        transitionDuration: Duration.zero,
-        reverseTransitionDuration: Duration.zero,
-      ),
-    );
   }
 
   AppsFlyerOptions appCrashesLogCreateAppsFlyerOptions() {
